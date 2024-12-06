@@ -2,7 +2,6 @@ import * as quizzesDao from "./dao.js";
 export default function QuizRoutes(app) {
 
     // Create a new quiz within a course (Faculty only)
-    //两种逻辑：一个是你前端就不给按钮，或者你想加限制条件也可以
     app.post('/api/courses/:cid/quizzes', async (req, res) => {
         const { cid } = req.params;
         const quizData = req.body;
@@ -36,12 +35,12 @@ export default function QuizRoutes(app) {
     // Delete a quiz (Faculty only)
     app.delete('/api/quizzes/:qid', async (req, res) => {
         const { qid } = req.params;
-        await quizzesDao.deleteQuiz(quizId);
+        await quizzesDao.deleteQuiz(qid);
         res.sendStatus(204);
     });
 
     // Publish or unpublish a quiz (Faculty only)
-    app.post('/api/quizzes/:qid/publish', async (req, res) => {
+    app.put('/api/quizzes/:qid/publishStatus', async (req, res) => {
         const { qid } = req.params;
         const quiz = await quizzesDao.togglePublishQuiz(qid);
         res.json({ published: quiz.published });

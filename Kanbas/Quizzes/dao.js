@@ -13,7 +13,7 @@ export async function getQuizzesByCourse(courseId) {
 }
 
 export async function getQuizById(quizId) {
-    return model.findById(quizId);
+    return model.findById(quizId).populate('questions');;
 }
 
 export async function updateQuiz(quizId, quizData) {
