@@ -25,9 +25,9 @@ const schema = new mongoose.Schema(
             points: { type: Number, default: 0 },
             published: { type: Boolean, default: false }, //for published or not
             questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'QuestionModel' }],
-            dueDate: Date,
-            availableFrom: Date,
-            availableUntil: Date,
+            dueDate: { type: Date, default: Date.now },
+            availableFrom: { type: Date, default: Date.now },
+            availableUntil: { type: Date, default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
     },
     { collection: "quizzes" }
 );

@@ -1,4 +1,5 @@
 import * as quizzesDao from "./dao.js";
+import * as attemptDao from "../Attempt/dao.js";
 export default function QuizRoutes(app) {
 
     // Create a new quiz within a course (Faculty only)
@@ -41,8 +42,12 @@ export default function QuizRoutes(app) {
 
     // Publish or unpublish a quiz (Faculty only)
     app.put('/api/quizzes/:qid/publishStatus', async (req, res) => {
-        const { qid } = req.params;
-        const quiz = await quizzesDao.togglePublishQuiz(qid);
-        res.json({ published: quiz.published });
+        try {
+            const {qid} = req.params;
+            const quiz = await quizzesDao.togglePublishQuiz(qid);
+            res.json({ published: quiz.published });
+        }catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     });
 }
