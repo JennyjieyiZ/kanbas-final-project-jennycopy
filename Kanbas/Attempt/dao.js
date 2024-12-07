@@ -14,7 +14,6 @@ export async function getPopulatedAttempt(attemptId) {
                 path: 'answers.questionId',
                 model: 'QuestionModel',
             });
-        console.log("get attempt) is" +  populatedAttempt);
         return populatedAttempt;
     } catch (error) {
         console.error('Error fetching populated attempt:', error);
@@ -25,7 +24,6 @@ export async function getPopulatedAttempt(attemptId) {
 export async function startAttempt(quizId, studentId) {
 
     const questions = await getQuestionsForQuiz(quizId)
-    console.log("create" + questions)
     const answers = questions.map((question) => ({
         questionId: question._id,
         answer: '', // 初始化为空字符串，等待学生作答
@@ -55,12 +53,14 @@ export async function submitAttempt(attemptId, answers) {
         throw new Error('Attempt not found');
     }
 
-    // 增强答案数据并计算分数
     const enhancedAnswers = answers.map(answer => {
-        const question = attempt.answers.find(
-            a => a.questionId._id.toString() === answer.questionId
-        )?.questionId;
-        console.log(question)
+
+
+        const question = attempt.answers.find(a => {
+            const answerId = typeof answer.questionId === 'string' ? answer.questionId : answer.questionId._id.toString();
+            const attemptId = typeof a.questionId === 'string' ? a.questionId : a.questionId._id.toString();
+            return answerId === attemptId;
+        })?.questionId;
         if (question) {
             const isCorrect = checkCorrectness(answer.answer, question);
             return {
@@ -98,16 +98,10 @@ function checkCorrectness(answer, question) {
     // 格式化字符串：去除空格并转换为小写
     const formatString = str => str.trim().toLowerCase();
 
-    // 如果问题是选择题或判断题
-    if (question.type === 'Multiple Choice' || question.type === 'True/False') {
+    if (!answer || answer.trim() === "") {
+        return false;
+    }else{
         return formatString(answer) === formatString(question.correctAnswer);
-    }
-
-    // 如果问题是填空题
-    else if (question.type === 'Fill in the Blank') {
-        return question.correctAnswers.some(correct =>
-            formatString(correct) === formatString(answer)
-        );
     }
 
     // 默认返回不正确

@@ -13,8 +13,14 @@ export default function QuizRoutes(app) {
     // Retrieve a list of quizzes for a course
     app.get('/api/courses/:cid/quizzes', async (req, res) => {
         const { cid } = req.params;
-        const quizzes = await quizzesDao.getQuizzesByCourse(cid);
-        res.json(quizzes);
+        const { sort } = req.query;
+        try {
+            const quizzes = await quizzesDao.getQuizzesByCourse(cid, sort);
+            res.json(quizzes);
+        } catch (error) {
+            console.error("Error fetching sorted quizzes:", error);
+            res.status(500).send({ error: 'Failed to fetch quizzes' });
+        }
     });
 
     // Retrieve details of a specific quiz
@@ -36,8 +42,12 @@ export default function QuizRoutes(app) {
     // Delete a quiz (Faculty only)
     app.delete('/api/quizzes/:qid', async (req, res) => {
         const { qid } = req.params;
-        await quizzesDao.deleteQuiz(qid);
-        res.sendStatus(204);
+        const result = await quizzesDao.deleteQuiz(qid);
+        if (result) {
+            res.sendStatus(204); // 204: No Content
+        } else {
+            res.status(404).json({ error: "Quiz not found" }); // 404: Not Found
+        };
     });
 
     // Publish or unpublish a quiz (Faculty only)

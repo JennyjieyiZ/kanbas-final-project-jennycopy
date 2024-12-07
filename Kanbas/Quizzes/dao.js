@@ -15,8 +15,13 @@ export function createQuiz(courseId, quizData) {
     }
 }
 
-export async function getQuizzesByCourse(courseId) {
-    return model.find({ courseId });
+export async function getQuizzesByCourse(courseId, sort) {
+    let sortParams = {};
+    if (sort) {
+        const [field, order] = sort.split('_');
+        sortParams[field] = order === 'desc' ? -1 : 1;
+    }
+    return model.find({ courseId }).sort(sortParams);
 }
 
 export async function getQuizById(quizId) {
