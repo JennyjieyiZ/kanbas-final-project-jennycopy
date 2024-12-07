@@ -1,13 +1,43 @@
 import model from "./model.js";
+import QuizModel from "../Quizzes/model.js"
+import {getQuestionsForQuiz} from "../Questions/dao.js";
+
+export async function getPopulatedAttempt(attemptId) {
+    try {
+        const populatedAttempt = await model
+            .findById(attemptId)
+            .populate({
+                path: 'quizId', // 填充测验信息
+                model: 'QuizModel',
+            })
+            .populate({
+                path: 'answers.questionId',
+                model: 'QuestionModel',
+            });
+        console.log("get attempt) is" +  populatedAttempt);
+        return populatedAttempt;
+    } catch (error) {
+        console.error('Error fetching populated attempt:', error);
+        throw error;
+    }
+}
 
 export async function startAttempt(quizId, studentId) {
-    // Find the number of previous attempts
+
+    const questions = await getQuestionsForQuiz(quizId)
+    console.log("create" + questions)
+    const answers = questions.map((question) => ({
+        questionId: question._id,
+        answer: '', // 初始化为空字符串，等待学生作答
+        isCorrect: false, // 默认 false，等待判分
+    }));
+
     const previousAttempts = await model.countDocuments({ quizId, studentId });
     const attempt = new model({
         quizId,
         studentId,
         attemptNumber: previousAttempts + 1,
-        answers: [],
+        answers,
     });
     return attempt.save();
 }

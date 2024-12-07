@@ -39,7 +39,8 @@ export default function AttemptRoutes(app){
     app.get('/api/quizzes/:quizId/attempts/:attemptId', async (req, res) => {
         const { attemptId } = req.params;
         try {
-            const attempt = await attemptDao.getAttemptById(attemptId);
+            const attempt = await attemptDao.getPopulatedAttempt(attemptId);
+            console.log(attempt);
             res.json(attempt);
         } catch (error) {
             res.status(500).json({ error: error.message });
