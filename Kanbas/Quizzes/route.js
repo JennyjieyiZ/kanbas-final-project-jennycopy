@@ -60,4 +60,26 @@ export default function QuizRoutes(app) {
             res.status(500).json({ error: error.message });
         }
     });
+
+
+    //copy quiz function
+    app.post('/api/quizzes/:qid/copy', async (req, res) => {
+        const { qid } = req.params;
+        const { targetCourseId } = req.body;
+    
+        if (!targetCourseId) {
+            return res.status(400).json({ error: "Target course ID is required" });
+        }
+    
+        try {
+            const copiedQuiz = await quizzesDao.copyQuiz(qid, targetCourseId);
+            res.status(200).json({
+                message: "Quiz copied successfully",
+                quiz: copiedQuiz,
+            });
+        } catch (error) {
+            console.error("Error copying quiz:", error);
+            res.status(500).json({ error: error.message });
+        }
+    });
 }

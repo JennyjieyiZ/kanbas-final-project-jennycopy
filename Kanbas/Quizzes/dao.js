@@ -41,3 +41,35 @@ export async function togglePublishQuiz(quizId) {
     quiz.published = !quiz.published;
     return quiz.save();
 }
+
+export async function copyQuiz(quizId, targetCourseId) {
+    try {
+        // Fetch the original quiz
+        const originalQuiz = await model.findById(quizId).populate('questions');
+        if (!originalQuiz) {
+            throw new Error('Quiz not found');
+        }
+
+        // Prepare the copied quiz data
+        const copiedQuizData = {
+            title: `${originalQuiz.title} (Copy)`, // Append "(Copy)" to the title
+            description: originalQuiz.description,
+            courseId: targetCourseId, // Associate with the target course
+            createdBy: originalQuiz.createdBy,
+            settings: { ...originalQuiz.settings },
+            points: originalQuiz.points,
+            published: false, 
+            questions: [...originalQuiz.questions], // Copy questions
+            dueDate: originalQuiz.dueDate,
+            availableFrom: originalQuiz.availableFrom,
+            availableUntil: originalQuiz.availableUntil,
+        };
+
+        // Save the new quiz to the database
+        const copiedQuiz = new model(copiedQuizData);
+        return await copiedQuiz.save();
+    } catch (error) {
+        console.error("Error copying quiz:", error);
+        throw new Error("Failed to copy quiz");
+    }
+}
