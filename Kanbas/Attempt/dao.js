@@ -82,7 +82,14 @@ export async function submitAttempt(attemptId, answers) {
 }
 
 export async function getAttemptsByQuizAndStudent(quizId, studentId) {
-    return model.find({ quizId, studentId });
+    return model.find({ quizId, studentId }).populate({
+        path: 'quizId', // 填充测验信息
+        model: 'QuizModel',
+    })
+        .populate({
+            path: 'answers.questionId',
+            model: 'QuestionModel',
+        });;
 }
 
 export async function getAttemptById(attemptId) {
